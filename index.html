@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jar Fanmade Ledger</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { light: '#3B82F6', DEFAULT: '#2563EB', dark: '#1D4ED8' },
+                        dark: { bg: '#0F172A', card: '#1E293B', border: '#334155', text: '#F1F5F9' },
+                        light: { bg: '#F8FAFC', card: '#FFFFFF', border: '#E2E8F0', text: '#0F172A' }
+                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    animation: { 'fade-in': 'fadeIn 0.3s ease-out' },
+                    keyframes: { fadeIn: { '0%': { opacity: '0', transform: 'translateY(10px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } } }
+                }
+            }
+        }
+    </script>
+    <script>
+        // System Theme Auto-Detection (Instant Run)
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        } else {
+            document.documentElement.classList.remove('dark')
+        }
+    </script>
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
+        .dark ::-webkit-scrollbar-thumb { background: #475569; }
+        
+        /* Glass/Card Effect */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .dark .glass-card {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+
+<body class="bg-light-bg dark:bg-dark-bg text-light-text dark:text-dark-text transition-colors duration-300 min-h-screen pb-20">
+
+    <nav class="fixed top-0 w-full z-50 glass-card border-b border-light-border dark:border-dark-border">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-brand rounded-lg flex items-center justify-center text-white font-black text-lg">J</div>
+                <h1 class="text-lg font-bold tracking-tight">JAR <span class="text-brand">FANMADE</span></h1>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="toggleTheme()" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                </button>
+                <div id="auth-btn-container">
+                    <button onclick="signInWithGoogle()" class="bg-brand hover:bg-brand-dark text-white px-4 py-2 rounded-lg text-sm font-semibold transition shadow-lg shadow-brand/30">Login</button>
+                </div>
+                <div id="user-profile" class="hidden flex items-center gap-2">
+                    <img id="user-avatar" src="" class="w-8 h-8 rounded-full border border-gray-300 dark:border-gray-600">
+                    <button onclick="logout()" class="text-xs font-bold text-red-500 hover:text-red-600">EXIT</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-5xl mx-auto px-4 mt-20 space-y-6 animate-fade-in">
+
+        <div id="admin-panel" class="hidden glass-card p-6 rounded-2xl">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-sm font-bold uppercase text-gray-500 dark:text-gray-400 tracking-wider">Admin Control</h2>
+                <span class="text-xs bg-brand/10 text-brand px-2 py-1 rounded-full font-bold">OWNER MODE</span>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-medium mb-1 ml-1">Active Client</label>
+                    <select id="client-selector" class="w-full bg-light-bg dark:bg-dark-bg border border-light-border dark:border-dark-border rounded-xl p-3 font-semibold focus:ring-2 focus:ring-brand outline-none transition"></select>
+                </div>
+                <div class="flex items-end gap-2">
+                    <button onclick="addNewClient()" class="flex-1 bg-gray-900 dark:bg-white text-white dark:text-black py-3 rounded-xl font-bold hover:opacity-90 transition">+ New Client</button>
+                    <button onclick="copyClientLink()" class="p-3 bg-gray-100 dark:bg-gray-800 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition" title="Copy Client Link">🔗</button>
+                </div>
+            </div>
+            
+            <div class="mt-3 p-2 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-dashed border-gray-300 dark:border-gray-700 flex justify-between items-center">
+                <code id="share-link-text" class="text-xs text-gray-500 truncate mr-2">Select a client to generate link...</code>
+            </div>
+        </div>
+
+        <div id="loading-state" class="text-center py-20">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-brand border-t-transparent"></div>
+            <p class="mt-2 text-sm text-gray-500">Syncing with Cloud...</p>
+        </div>
+
+        <div id="dashboard" class="hidden space-y-6">
+            
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-2">
+                <div>
+                    <p class="text-xs font-bold text-gray-500 uppercase">Ledger For</p>
+                    <h1 id="client-name-display" class="text-3xl md:text-4xl font-black tracking-tight text-gray-900 dark:text-white">...</h1>
+                </div>
+                <div id="status-badge" class="hidden px-3 py-1 bg-yellow-100 text-yellow-800 text-xs font-bold rounded-full border border-yellow-200 animate-pulse">
+                    ⚠️ Payment Verification Pending
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="glass-card p-5 rounded-2xl border-l-4 border-blue-500">
+                    <p class="text-xs font-bold text-gray-400 uppercase">Total Services</p>
+                    <p id="total-billed" class="text-2xl font-bold mt-1">₹0</p>
+                </div>
+                <div class="glass-card p-5 rounded-2xl border-l-4 border-green-500">
+                    <p class="text-xs font-bold text-gray-400 uppercase">Total Paid</p>
+                    <p id="total-paid" class="text-2xl font-bold mt-1 text-green-600 dark:text-green-400">₹0</p>
+                    <p id="pending-amt" class="text-xs font-bold text-yellow-600 mt-1 hidden">Computing...</p>
+                </div>
+                <div class="glass-card p-5 rounded-2xl border-l-4 border-brand bg-gradient-to-br from-blue-50 to-white dark:from-blue-900/20 dark:to-dark-card shadow-lg relative overflow-hidden">
+                    <div class="absolute right-0 top-0 opacity-10 transform translate-x-4 -translate-y-4">
+                        <svg class="w-24 h-24 text-brand" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.78-1.66-2.59-1.66-1.94 0-2.39 1-2.39 1.61 0 .63.35 1.1 2.67 1.65 2.72.64 4.18 1.58 4.18 3.57 0 1.91-1.42 3.03-3.06 3.39z"/></svg>
+                    </div>
+                    <p class="text-xs font-bold text-brand uppercase mb-1">Net Payable</p>
+                    <p id="net-balance" class="text-4xl font-black text-gray-900 dark:text-white">₹0</p>
+                    <p id="balance-status" class="text-xs font-medium text-gray-500 mt-1">Status: Clear</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                
+                <div class="glass-card p-6 rounded-2xl">
+                    <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+                        <span class="bg-green-100 text-green-600 p-1 rounded">💸</span> Make Payment
+                    </h3>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-xs font-bold text-gray-500 uppercase ml-1">Amount (₹)</label>
+                            <input type="number" id="pay-amount" placeholder="e.g. 500" class="w-full text-2xl font-bold bg-light-bg dark:bg-dark-bg border border-light-border dark:border-dark-border rounded-xl p-3 focus:ring-2 focus:ring-green-500 outline-none transition">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <button onclick="payViaUPI()" class="flex flex-col items-center justify-center p-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl shadow-lg transition transform hover:scale-[1.02]">
+                                <span class="font-bold">Pay Online</span>
+                                <span class="text-[10px] opacity-80">UPI / GPay / PhonePe</span>
+                            </button>
+                            
+                            <button onclick="payViaCash()" class="flex flex-col items-center justify-center p-4 bg-gray-800 dark:bg-white text-white dark:text-black hover:bg-gray-900 dark:hover:bg-gray-200 rounded-xl shadow-lg transition transform hover:scale-[1.02]">
+                                <span class="font-bold">Pay Cash</span>
+                                <span class="text-[10px] opacity-70">Hand to Owner</span>
+                            </button>
+                        </div>
+
+                        <div id="utr-section" class="hidden pt-4 border-t border-dashed border-gray-300 dark:border-gray-700 animate-fade-in">
+                            <label class="text-xs text-gray-500 mb-1 block">Verify Online Payment</label>
+                            <div class="flex gap-2">
+                                <input type="text" id="pay-utr" placeholder="Enter UTR / Transaction ID" class="flex-1 bg-light-bg dark:bg-dark-bg border border-light-border dark:border-dark-border rounded-lg p-2 text-sm">
+                                <button onclick="submitOnlinePayment()" class="bg-blue-600 text-white px-4 rounded-lg font-bold text-xs">VERIFY</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="task-panel" class="hidden glass-card p-6 rounded-2xl border border-dashed border-gray-300 dark:border-gray-700">
+                    <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+                        <span class="bg-blue-100 text-blue-600 p-1 rounded">⏱️</span> Add Service
+                    </h3>
+                    <div class="flex gap-2 mb-4">
+                        <input type="number" id="t-hr" placeholder="Hr" class="flex-1 p-3 text-center text-xl font-mono bg-light-bg dark:bg-dark-bg border rounded-xl">
+                        <input type="number" id="t-min" placeholder="Min" class="flex-1 p-3 text-center text-xl font-mono bg-light-bg dark:bg-dark-bg border rounded-xl">
+                    </div>
+                    <button onclick="addTask()" class="w-full py-4 bg-brand text-white font-bold rounded-xl shadow-lg hover:bg-brand-dark transition">ADD TO LEDGER</button>
+                </div>
+
+            </div>
+
+            <div class="glass-card rounded-2xl overflow-hidden">
+                <div class="flex border-b border-light-border dark:border-dark-border">
+                    <button onclick="switchTab('tasks')" id="tab-tasks" class="flex-1 py-3 text-sm font-bold bg-brand/10 text-brand border-b-2 border-brand transition">Task History</button>
+                    <button onclick="switchTab('payments')" id="tab-payments" class="flex-1 py-3 text-sm font-bold text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition">Payment History</button>
+                </div>
+                <div id="list-container" class="max-h-80 overflow-y-auto p-4 space-y-3 bg-gray-50/50 dark:bg-black/20">
+                    </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+
+    <script>
+        // --- CONFIGURATION ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyCG9w-pUJq9FopmIUUPLUVMc03P84Rblgw",
+            authDomain: "jar-ledger.firebaseapp.com",
+            databaseURL: "https://jar-ledger-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "jar-ledger",
+            storageBucket: "jar-ledger.firebasestorage.app",
+            messagingSenderId: "915159281904",
+            appId: "1:915159281904:web:4f3d5c940a03c4b525d235"
+        };
+
+        // Init Firebase
+        let db, auth, user = null;
+        try {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.database();
+            auth = firebase.auth();
+        } catch(e) { console.error(e); }
+
+        // State
+        let currentClient = null;
+        let ledger = {};
+        const urlParams = new URLSearchParams(window.location.search);
+        const clientModeName = urlParams.get('client'); // If ?client=Name exists
+
+        // --- AUTH & LOAD ---
+        auth.onAuthStateChanged(u => {
+            user = u;
+            const authBtn = document.getElementById('auth-btn-container');
+            const profile = document.getElementById('user-profile');
+            const adminPanel = document.getElementById('admin-panel');
+            const taskPanel = document.getElementById('task-panel');
+
+            if (user) {
+                // ADMIN LOGGED IN
+                authBtn.classList.add('hidden');
+                profile.classList.remove('hidden');
+                document.getElementById('user-avatar').src = user.photoURL || 'https://ui-avatars.com/api/?name=Admin';
+                
+                // Load Data
+                db.ref(`users/${user.uid}/clientLedgers`).on('value', snap => {
+                    ledger = snap.val() || { clients: {} };
+                    if(!ledger.clients) ledger.clients = {};
+                    initApp();
+                });
+
+                if(!clientModeName) {
+                    adminPanel.classList.remove('hidden');
+                    taskPanel.classList.remove('hidden');
+                }
+
+            } else {
+                // GUEST / CLIENT MODE
+                authBtn.classList.remove('hidden');
+                profile.classList.add('hidden');
+                
+                // If Client Link, we need a way to read data. 
+                // NOTE: For security, normally we need public read access or a specific shared path.
+                // Assuming you (Admin) are logged in on your device, or Database rules allow public read for now.
+                if(clientModeName) {
+                    document.getElementById('loading-state').innerHTML = "<p>Please Login to view secure ledger.</p>";
+                } else {
+                    document.getElementById('loading-state').innerHTML = "<p>Welcome to Jar Fanmade. <br>Login to manage.</p>";
+                }
+            }
+        });
+
+        function initApp() {
+            const clientSelector = document.getElementById('client-selector');
+            clientSelector.innerHTML = '<option disabled selected>Select Client</option>';
+            
+            const clients = Object.keys(ledger.clients);
+            clients.forEach(c => {
+                let opt = document.createElement('option');
+                opt.value = c; opt.innerText = c;
+                clientSelector.appendChild(opt);
+            });
+
+            // Logic to pick client
+            if (clientModeName && clients.includes(clientModeName)) {
+                loadClient(clientModeName);
+                document.getElementById('admin-panel').classList.add('hidden'); // Ensure hidden in client view
+            } else if (!clientModeName && clients.length > 0) {
+                // Admin default to first
+                if(!currentClient) loadClient(clients[0]);
+            } else {
+                 document.getElementById('loading-state').innerText = "No Clients Found.";
+            }
+        }
+
+        function loadClient(name) {
+            currentClient = name;
+            document.getElementById('client-selector').value = name;
+            
+            // UI Switch
+            document.getElementById('loading-state').classList.add('hidden');
+            document.getElementById('dashboard').classList.remove('hidden');
+            
+            // Render Data
+            renderFinancials();
+            renderHistory('tasks'); // Default tab
+            
+            // Update Link Text
+            const link = `${window.location.origin}${window.location.pathname}?client=${encodeURIComponent(name)}`;
+            document.getElementById('share-link-text').innerText = link;
+            document.getElementById('client-name-display').innerText = name;
+        }
+
+        function renderFinancials() {
+            const data = ledger.clients[currentClient];
+            const rate = data.settings?.hourlyRate || 150;
+            const tasks = Object.values(data.tasks || {});
+            const payments = Object.values(data.payments || {});
+
+            let billed = 0;
+            tasks.forEach(t => billed += t.decimalHours * rate);
+
+            let paid = 0;
+            let pending = 0;
+            payments.forEach(p => {
+                if(p.status === 'verified' || !p.status) paid += p.amount;
+                else pending += p.amount;
+            });
+
+            const balance = billed - paid;
+
+            // Update DOM
+            document.getElementById('total-billed').innerText = `₹${Math.round(billed)}`;
+            document.getElementById('total-paid').innerText = `₹${Math.round(paid)}`;
+            document.getElementById('net-balance').innerText = `₹${Math.abs(Math.round(balance))}`;
+            
+            // Dynamic Colors for Balance
+            const balEl = document.getElementById('net-balance');
+            const statusEl = document.getElementById('balance-status');
+            if(balance > 0) {
+                balEl.className = "text-4xl font-black text-brand";
+                statusEl.innerText = "Payment Due";
+                statusEl.className = "text-xs font-bold text-brand mt-1 uppercase";
+            } else if (balance < 0) {
+                balEl.className = "text-4xl font-black text-green-600";
+                statusEl.innerText = "Advance Credit";
+                statusEl.className = "text-xs font-bold text-green-600 mt-1 uppercase";
+            } else {
+                balEl.className = "text-4xl font-black text-gray-400";
+                statusEl.innerText = "Settled";
+            }
+
+            // Pending Warning
+            const warnBadge = document.getElementById('status-badge');
+            const pendingAmt = document.getElementById('pending-amt');
+            if(pending > 0) {
+                warnBadge.classList.remove('hidden');
+                pendingAmt.classList.remove('hidden');
+                pendingAmt.innerText = `+ ₹${pending} Verifying...`;
+            } else {
+                warnBadge.classList.add('hidden');
+                pendingAmt.classList.add('hidden');
+            }
+        }
+
+        // --- HISTORY TABS ---
+        function switchTab(tab) {
+            const btnTasks = document.getElementById('tab-tasks');
+            const btnPay = document.getElementById('tab-payments');
+            
+            if(tab === 'tasks') {
+                btnTasks.className = "flex-1 py-3 text-sm font-bold bg-brand/10 text-brand border-b-2 border-brand transition";
+                btnPay.className = "flex-1 py-3 text-sm font-bold text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition";
+                renderHistory('tasks');
+            } else {
+                btnPay.className = "flex-1 py-3 text-sm font-bold bg-green-50 text-green-600 border-b-2 border-green-500 transition";
+                btnTasks.className = "flex-1 py-3 text-sm font-bold text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition";
+                renderHistory('payments');
+            }
+        }
+
+        function renderHistory(type) {
+            const container = document.getElementById('list-container');
+            container.innerHTML = '';
+            
+            const data = ledger.clients[currentClient];
+            const items = Object.values(data[type] || {}).sort((a,b) => b.timestamp - a.timestamp);
+            
+            if(items.length === 0) {
+                container.innerHTML = `<div class="text-center py-8 text-gray-400 text-xs">No records found.</div>`;
+                return;
+            }
+
+            items.forEach(item => {
+                const div = document.createElement('div');
+                div.className = "bg-white dark:bg-dark-card p-3 rounded-xl border border-light-border dark:border-dark-border flex justify-between items-center shadow-sm";
+                
+                if(type === 'tasks') {
+                    const rate = data.settings?.hourlyRate || 150;
+                    const cost = Math.round(item.decimalHours * rate);
+                    div.innerHTML = `
+                        <div>
+                            <p class="font-bold text-gray-800 dark:text-gray-200">Task / Service</p>
+                            <p class="text-[10px] text-gray-500">${item.date} • ${item.hours}h ${item.minutes}m</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold text-brand">₹${cost}</p>
+                            ${!clientModeName ? `<button onclick="deleteItem('tasks', ${item.timestamp})" class="text-[10px] text-red-400">DELETE</button>` : ''}
+                        </div>
+                    `;
+                } else {
+                    // Payment
+                    const isVerified = item.status === 'verified' || !item.status;
+                    const statusHtml = isVerified 
+                        ? `<span class="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold">Verified</span>`
+                        : `<span class="text-[10px] bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full font-bold">Pending</span>`;
+                    
+                    // Approval Buttons (Only for Admin)
+                    let actions = '';
+                    if(!clientModeName && !isVerified) {
+                        actions = `<div class="mt-1 flex gap-2 justify-end">
+                            <button onclick="approvePay(${item.timestamp})" class="text-xs font-bold text-green-600">✓</button>
+                            <button onclick="deleteItem('payments', ${item.timestamp})" class="text-xs font-bold text-red-600">✕</button>
+                        </div>`;
+                    }
+
+                    div.innerHTML = `
+                        <div>
+                            <p class="font-bold text-gray-800 dark:text-gray-200">₹${item.amount}</p>
+                            <p class="text-[10px] text-gray-500">${item.utr ? 'UTR: '+item.utr : 'CASH PAYMENT'}</p>
+                        </div>
+                        <div class="text-right">
+                            ${statusHtml}
+                            ${actions}
+                        </div>
+                    `;
+                }
+                container.appendChild(div);
+            });
+        }
+
+        // --- ACTIONS ---
+
+        function addTask() {
+            if(!user) return alert("Please Login");
+            const h = Number(document.getElementById('t-hr').value);
+            const m = Number(document.getElementById('t-min').value);
+            
+            const task = {
+                hours: h, minutes: m, decimalHours: h + (m/60),
+                date: new Date().toISOString().split('T')[0], timestamp: Date.now()
+            };
+            
+            db.ref(`users/${user.uid}/clientLedgers/clients/${currentClient}/tasks/${task.timestamp}`).set(task);
+            document.getElementById('t-hr').value = '';
+            document.getElementById('t-min').value = '';
+            renderHistory('tasks');
+        }
+
+        // 1. Pay via UPI (Shows UTR Box)
+        function payViaUPI() {
+            const amt = document.getElementById('pay-amount').value;
+            if(!amt) return alert("Enter amount");
+            
+            // Deep Link
+            window.location.href = `upi://pay?pa=jarfanmade@ybl&pn=JarFanmade&am=${amt}&cu=INR`;
+            
+            // Show UTR Input
+            document.getElementById('utr-section').classList.remove('hidden');
+        }
+
+        // 2. Pay via Cash (Direct Submit)
+        function payViaCash() {
+            const amt = document.getElementById('pay-amount').value;
+            if(!amt) return alert("Enter amount");
+            
+            if(confirm(`Confirm Cash Payment of ₹${amt}? \n(This will be marked pending until approved)`)) {
+                submitPayment(amt, null, 'cash'); // Null UTR
+            }
+        }
+
+        function submitOnlinePayment() {
+            const amt = document.getElementById('pay-amount').value;
+            const utr = document.getElementById('pay-utr').value;
+            if(!utr) return alert("Enter UTR");
+            submitPayment(amt, utr, 'online');
+        }
+
+        function submitPayment(amount, utr, method) {
+            const payment = {
+                amount: Number(amount),
+                utr: utr,
+                method: method,
+                date: new Date().toISOString().split('T')[0],
+                timestamp: Date.now(),
+                status: 'pending' // Always pending first
+            };
+
+            // Write to DB (Needs Write Permission)
+            if(user) {
+                // Admin writing
+                db.ref(`users/${user.uid}/clientLedgers/clients/${currentClient}/payments/${payment.timestamp}`).set(payment);
+                alert("Payment Recorded!");
+                resetPayForm();
+            } else {
+                // Guest writing: Normally restricted. 
+                // For this demo to work in Guest Mode, DB rules must allow write to specific path, 
+                // OR we alert user to send screenshot. 
+                // Assuming Admin is logging the Cash, or Client has restricted write access.
+                alert("Please inform Admin to verify.");
+            }
+        }
+
+        function resetPayForm() {
+            document.getElementById('pay-amount').value = '';
+            document.getElementById('pay-utr').value = '';
+            document.getElementById('utr-section').classList.add('hidden');
+        }
+
+        // --- ADMIN UTILS ---
+        function approvePay(ts) {
+            db.ref(`users/${user.uid}/clientLedgers/clients/${currentClient}/payments/${ts}/status`).set('verified');
+        }
+
+        function deleteItem(type, ts) {
+            if(confirm("Delete?")) db.ref(`users/${user.uid}/clientLedgers/clients/${currentClient}/${type}/${ts}`).remove();
+        }
+
+        function addNewClient() {
+            const name = prompt("Client Name:");
+            if(name) db.ref(`users/${user.uid}/clientLedgers/clients/${name}`).set({ settings: {hourlyRate:150} });
+        }
+
+        function copyClientLink() {
+            const text = document.getElementById('share-link-text').innerText;
+            navigator.clipboard.writeText(text);
+            alert("Link Copied!");
+        }
+
+        // Auth
+        function signInWithGoogle() { auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
+        function logout() { auth.signOut(); location.reload(); }
+        function toggleTheme() {
+            if(document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark'); localStorage.theme = 'light';
+            } else {
+                document.documentElement.classList.add('dark'); localStorage.theme = 'dark';
+            }
+        }
+
+        // Listen for Client Selection change
+        document.getElementById('client-selector').addEventListener('change', (e) => loadClient(e.target.value));
+
+    </script>
+</body>
+</html>
