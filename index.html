@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jar Ledger Pro</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#0078D4', 'primary-light': '#31A1E0', 'primary-dark': '#005a9e',
+                        'accent': '#107c10', 'accent-light': '#18b518',
+                        'danger': '#dc2626', 'warning': '#f59e0b',
+                        'background-light': '#ffffff', 'black-text': '#111827',
+                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .history-list { max-height: 400px; overflow-y: auto; }
+        .corporate-card-pro { box-shadow: 0 1px 3px 0 rgba(0,0,0,0.05); }
+        .pending-badge { background-color: #FEF3C7; color: #92400E; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; border: 1px solid #F59E0B; }
+        .verified-badge { background-color: #D1FAE5; color: #065F46; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; border: 1px solid #10B981; }
+    </style>
+</head>
+
+<body class="bg-gray-50 dark:bg-[#1A1D21] transition-colors duration-200">
+
+<header class="fixed top-0 w-full z-40 bg-white dark:bg-[#1A1D21] shadow-sm border-b dark:border-[#3A404A]">
+    <div class="max-w-6xl mx-auto flex justify-between items-center p-4">
+        <h1 class="text-2xl font-black text-black-text dark:text-[#EAEAEA] tracking-tight">JAR FANMADE <span class="text-primary text-sm font-medium">Ledger</span></h1>
+        <div id="auth-section">
+            <button id="login-btn" onclick="signInWithGoogle()" class="bg-primary text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-primary-dark transition">Login</button>
+            <div id="user-info" class="hidden flex items-center gap-3">
+                <span id="user-email" class="text-sm font-medium text-gray-600 dark:text-gray-300 hidden md:block"></span>
+                <button onclick="logout()" class="text-danger text-sm font-bold hover:underline">Logout</button>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="max-w-6xl mx-auto p-4 md:p-8 mt-20 space-y-6">
+
+    <div id="admin-controls" class="grid grid-cols-1 md:grid-cols-2 gap-6 hidden">
+        <div class="bg-white dark:bg-[#252A31] p-6 rounded-xl shadow-sm border dark:border-[#3A404A]">
+            <h2 class="text-lg font-bold text-gray-800 dark:text-white mb-4">🔍 Select Client</h2>
+            <select id="client-selector" class="w-full p-3 border rounded-lg bg-gray-50 dark:bg-[#3A404A] dark:text-white dark:border-[#4A505A] font-semibold"></select>
+            <div class="mt-4 flex gap-2">
+                <button onclick="addNewClient()" class="flex-1 bg-primary text-white py-2 rounded-lg font-semibold hover:bg-primary-dark">+ New</button>
+                <button onclick="deleteClient()" class="flex-1 bg-danger text-white py-2 rounded-lg font-semibold hover:bg-red-700">Delete</button>
+            </div>
+             <div class="mt-4 pt-4 border-t dark:border-[#4A505A]">
+                <p class="text-xs text-gray-500 mb-2">Share this link with client (Read-Only):</p>
+                <div class="flex gap-2">
+                    <input type="text" id="share-link-input" readonly class="w-full text-xs p-2 bg-gray-100 rounded border dark:bg-[#3A404A] dark:text-gray-300">
+                    <button onclick="copyLink()" class="bg-gray-200 px-3 py-1 rounded text-xs font-bold hover:bg-gray-300">Copy</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="ledger-content" class="hidden space-y-6">
+        
+        <div class="flex justify-between items-end border-b pb-4 dark:border-[#3A404A]">
+            <div>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Ledger For</p>
+                <h2 id="display-client-name" class="text-3xl font-black text-primary dark:text-primary-light"></h2>
+            </div>
+            <div id="verification-warning" class="hidden bg-yellow-100 text-yellow-800 text-xs px-3 py-1 rounded-full font-bold border border-yellow-200">
+                ⚠️ Pending Approvals
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-white dark:bg-[#252A31] p-5 rounded-xl shadow-sm border dark:border-[#3A404A]">
+                <p class="text-xs font-bold text-gray-400 uppercase">Total Billed</p>
+                <p id="sum-billed" class="text-2xl font-bold text-gray-800 dark:text-white mt-1">₹0.00</p>
+            </div>
+            <div class="bg-white dark:bg-[#252A31] p-5 rounded-xl shadow-sm border dark:border-[#3A404A]">
+                <p class="text-xs font-bold text-gray-400 uppercase">Verified Deposit</p>
+                <p id="sum-deposited" class="text-2xl font-bold text-accent mt-1">₹0.00</p>
+                <p id="sum-pending" class="text-xs text-warning mt-1 font-semibold hidden">Computing...</p>
+            </div>
+            <div id="net-balance-card" class="bg-white dark:bg-[#252A31] p-5 rounded-xl shadow-md border-l-4 border-primary">
+                <p class="text-xs font-bold text-gray-400 uppercase">Net Balance</p>
+                <p id="sum-balance" class="text-3xl font-black text-primary mt-1">₹0.00</p>
+                <p id="balance-label" class="text-xs font-bold text-gray-500">To Pay</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            
+            <div id="task-entry-card" class="bg-white dark:bg-[#252A31] p-6 rounded-xl shadow-sm border dark:border-[#3A404A]">
+                <h3 class="font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2">⏱️ Add Task</h3>
+                <div class="grid grid-cols-3 gap-2 mb-4">
+                    <input type="number" id="t-hr" placeholder="Hr" class="p-3 text-center border rounded-lg dark:bg-[#3A404A] dark:text-white font-mono text-lg">
+                    <input type="number" id="t-min" placeholder="Min" class="p-3 text-center border rounded-lg dark:bg-[#3A404A] dark:text-white font-mono text-lg">
+                    <input type="number" id="t-sec" placeholder="Sec" class="p-3 text-center border rounded-lg dark:bg-[#3A404A] dark:text-white font-mono text-lg">
+                </div>
+                <div class="mb-4">
+                     <label class="text-xs text-gray-500">Hourly Rate (₹)</label>
+                     <input type="number" id="hourly-rate" class="w-full p-2 border rounded dark:bg-[#3A404A] dark:text-white font-bold" value="150">
+                </div>
+                <button onclick="addTask()" class="w-full bg-primary text-white py-3 rounded-lg font-bold hover:bg-primary-dark shadow-lg">ADD BILLED TIME</button>
+            </div>
+
+            <div class="bg-white dark:bg-[#252A31] p-6 rounded-xl shadow-sm border dark:border-[#3A404A]">
+                <h3 class="font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2">💸 Make Payment</h3>
+                
+                <div class="mb-4">
+                    <label class="text-xs text-gray-500">Amount (₹)</label>
+                    <input type="number" id="pay-amount" placeholder="500" class="w-full p-3 text-xl font-bold text-accent border rounded-lg mb-2 dark:bg-[#3A404A] dark:text-white">
+                    <button onclick="openUPI()" class="w-full bg-gradient-to-r from-blue-600 to-blue-800 text-white py-3 rounded-lg font-bold shadow-md flex justify-center items-center gap-2">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                        Pay via UPI
+                    </button>
+                    <p class="text-[10px] text-gray-400 text-center mt-1">UPI ID: jarfanmade@ybl</p>
+                </div>
+
+                <div class="border-t pt-4 dark:border-[#4A505A]">
+                    <label class="text-xs text-gray-500">Enter UTR / Transaction ID</label>
+                    <div class="flex gap-2 mt-1">
+                        <input type="text" id="pay-utr" placeholder="Example: 3028481923" class="flex-1 p-2 border rounded-lg dark:bg-[#3A404A] dark:text-white">
+                        <button onclick="submitPayment()" class="bg-accent text-white px-4 py-2 rounded-lg font-bold text-xs hover:bg-green-700">SUBMIT</button>
+                    </div>
+                    <p class="text-[10px] text-gray-400 mt-1">Submit UTR to verify payment.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div>
+                <h3 class="font-bold text-gray-700 dark:text-gray-300 mb-2 text-sm uppercase tracking-wider">Task History</h3>
+                <div id="task-list" class="history-list bg-white dark:bg-[#252A31] rounded-xl shadow-sm border dark:border-[#3A404A]"></div>
+            </div>
+            <div>
+                <h3 class="font-bold text-gray-700 dark:text-gray-300 mb-2 text-sm uppercase tracking-wider">Payment History</h3>
+                <div id="payment-list" class="history-list bg-white dark:bg-[#252A31] rounded-xl shadow-sm border dark:border-[#3A404A]"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="status-msg" class="text-center mt-20 text-gray-500 dark:text-gray-400">Loading system...</div>
+
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+
+<script>
+    // --- FIREBASE CONFIG (Do Not Change) ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyCG9w-pUJq9FopmIUUPLUVMc03P84Rblgw",
+      authDomain: "jar-ledger.firebaseapp.com",
+      databaseURL: "https://jar-ledger-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "jar-ledger",
+      storageBucket: "jar-ledger.firebasestorage.app",
+      messagingSenderId: "915159281904",
+      appId: "1:915159281904:web:4f3d5c940a03c4b525d235"
+    };
+
+    // Initialize
+    let app, db, auth, currentUser = null;
+    try {
+        app = firebase.initializeApp(firebaseConfig);
+        db = firebase.database();
+        auth = firebase.auth();
+    } catch(e) { console.error(e); }
+
+    // State
+    let ledgerData = {};
+    let activeClient = null;
+    let urlClient = new URLSearchParams(window.location.search).get('client'); // Check URL for client mode
+
+    // --- AUTH LOGIC ---
+    auth.onAuthStateChanged(user => {
+        currentUser = user;
+        updateUI();
+        if (user) {
+            db.ref(`users/${user.uid}/clientLedgers`).on('value', snap => {
+                ledgerData = snap.val() || { clients: {} };
+                // Ensure clients object exists
+                if(!ledgerData.clients) ledgerData.clients = {};
+                renderApp();
+            });
+        } else {
+             // Agar client mode hai toh Bina Login ke dikhao
+             if(urlClient) {
+                 // Guest view logic needs Admin UID to read data, 
+                 // Currently we show login prompt for security unless we hardcode UID.
+                 // For now, let's keep it simple: Show Login for Admin.
+             }
+             document.getElementById('status-msg').innerHTML = `
+                <div class="p-6 bg-white dark:bg-[#252A31] rounded-xl shadow-lg inline-block">
+                    <h2 class="text-xl font-bold mb-2 dark:text-white">Admin Login Required</h2>
+                    <p class="text-sm text-gray-500 mb-4">Please login to manage the ledger.</p>
+                </div>`;
+        }
+    });
+
+    const signInWithGoogle = () => {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        auth.signInWithPopup(provider).catch(e => alert(e.message));
+    };
+    const logout = () => auth.signOut();
+
+    // --- CORE LOGIC ---
+    function renderApp() {
+        const clientSelector = document.getElementById('client-selector');
+        const adminControls = document.getElementById('admin-controls');
+        const statusMsg = document.getElementById('status-msg');
+        
+        // Populate Dropdown
+        clientSelector.innerHTML = '<option value="" disabled selected>Select Client</option>';
+        const clientNames = Object.keys(ledgerData.clients || {});
+        
+        clientNames.forEach(name => {
+            let opt = document.createElement('option');
+            opt.value = name;
+            opt.innerText = name;
+            clientSelector.appendChild(opt);
+        });
+
+        // Determine Mode
+        if (urlClient) {
+            // CLIENT MODE
+            activeClient = decodeURIComponent(urlClient);
+            adminControls.classList.add('hidden'); // Hide Admin Panels
+            document.getElementById('task-entry-card').classList.add('hidden'); // Clients can't add tasks
+            // Safety Check
+            if(!ledgerData.clients[activeClient]) {
+                statusMsg.innerText = "Client Not Found or Access Denied.";
+                document.getElementById('ledger-content').classList.add('hidden');
+                return;
+            }
+        } else {
+            // ADMIN MODE
+            adminControls.classList.remove('hidden');
+            document.getElementById('task-entry-card').classList.remove('hidden');
+            
+            // --- FIX: Auto-Select First Client ---
+            if (!activeClient && clientNames.length > 0) {
+               activeClient = clientNames[0]; // Pick first client automatically
+               clientSelector.value = activeClient; // Update Dropdown UI
+            }
+        }
+
+        // Render Active Ledger
+        if (activeClient && ledgerData.clients[activeClient]) {
+            clientSelector.value = activeClient;
+            // Hide loading, show content
+            statusMsg.classList.add('hidden');
+            document.getElementById('ledger-content').classList.remove('hidden');
+            
+            renderLedger(activeClient);
+        } else {
+            // No clients exist yet
+            if(clientNames.length === 0) {
+                 statusMsg.innerHTML = "No clients found. Click <b>+ New</b> to start.";
+            }
+        }
+    }
+
+    function renderLedger(clientName) {
+        const data = ledgerData.clients[clientName];
+        const tasks = Object.values(data.tasks || {});
+        const payments = Object.values(data.payments || {});
+        const settings = data.settings || { hourlyRate: 150 };
+
+        document.getElementById('display-client-name').innerText = clientName;
+        document.getElementById('hourly-rate').value = settings.hourlyRate;
+        if(urlClient) document.getElementById('hourly-rate').disabled = true;
+
+        // Share Link Logic
+        const link = `${window.location.origin}${window.location.pathname}?client=${encodeURIComponent(clientName)}`;
+        document.getElementById('share-link-input').value = link;
+
+        // Calculations
+        let totalHrs = 0;
+        tasks.forEach(t => totalHrs += t.decimalHours);
+        const billed = totalHrs * settings.hourlyRate;
+
+        // Filter: Only sum VERIFIED payments for balance
+        let deposited = 0;
+        let pending = 0;
+        payments.forEach(p => {
+            if(p.status === 'verified' || !p.status) { // !p.status for backward compatibility
+                deposited += p.amount;
+            } else {
+                pending += p.amount;
+            }
+        });
+
+        // Update Summary UI
+        document.getElementById('sum-billed').innerText = `₹${billed.toFixed(2)}`;
+        document.getElementById('sum-deposited').innerText = `₹${deposited.toFixed(2)}`;
+        
+        const balance = billed - deposited;
+        const balEl = document.getElementById('sum-balance');
+        balEl.innerText = `₹${Math.abs(balance).toFixed(2)}`;
+        balEl.className = balance > 0 ? "text-3xl font-black text-primary mt-1" : "text-3xl font-black text-accent mt-1";
+        document.getElementById('balance-label').innerText = balance > 0 ? "Client To Pay" : "Advance Credit";
+
+        // Pending Warning
+        const pendingEl = document.getElementById('sum-pending');
+        const warnBadge = document.getElementById('verification-warning');
+        if(pending > 0) {
+            pendingEl.innerText = `+ ₹${pending.toFixed(2)} Pending`;
+            pendingEl.classList.remove('hidden');
+            warnBadge.classList.remove('hidden');
+        } else {
+            pendingEl.classList.add('hidden');
+            warnBadge.classList.add('hidden');
+        }
+
+        // Render Lists
+        renderTaskList(tasks, settings.hourlyRate);
+        renderPaymentList(payments);
+    }
+
+    function renderTaskList(tasks, rate) {
+        const el = document.getElementById('task-list');
+        el.innerHTML = '';
+        tasks.sort((a,b) => b.timestamp - a.timestamp).forEach(t => {
+            const row = document.createElement('div');
+            row.className = "p-3 border-b border-gray-100 dark:border-[#3A404A] flex justify-between items-center";
+            row.innerHTML = `
+                <div>
+                    <p class="font-bold text-gray-800 dark:text-gray-200">₹${(t.decimalHours * rate).toFixed(2)}</p>
+                    <p class="text-xs text-gray-400">${t.date} • ${t.hours}h ${t.minutes}m</p>
+                </div>
+                ${!urlClient ? `<button onclick="deleteItem('tasks', ${t.timestamp})" class="text-danger text-xs">🗑️</button>` : ''}
+            `;
+            el.appendChild(row);
+        });
+    }
+
+    function renderPaymentList(payments) {
+        const el = document.getElementById('payment-list');
+        el.innerHTML = '';
+        payments.sort((a,b) => b.timestamp - a.timestamp).forEach(p => {
+            const isVerified = p.status === 'verified' || !p.status;
+            const badge = isVerified 
+                ? `<span class="verified-badge">Verified</span>` 
+                : `<span class="pending-badge">Pending</span>`;
+            
+            // Verification Controls (Admin Only)
+            let actions = '';
+            if(!urlClient && !isVerified) {
+                actions = `
+                    <div class="flex gap-1 mt-1">
+                        <button onclick="verifyPayment(${p.timestamp})" class="text-accent text-xs font-bold border border-green-500 px-2 rounded hover:bg-green-50">Approve</button>
+                        <button onclick="deleteItem('payments', ${p.timestamp})" class="text-danger text-xs font-bold border border-red-500 px-2 rounded hover:bg-red-50">Reject</button>
+                    </div>
+                `;
+            } else if (!urlClient) {
+                 actions = `<button onclick="deleteItem('payments', ${p.timestamp})" class="text-gray-400 text-xs hover:text-red-500">🗑️</button>`;
+            }
+
+            const row = document.createElement('div');
+            row.className = "p-3 border-b border-gray-100 dark:border-[#3A404A]";
+            row.innerHTML = `
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="font-bold text-gray-800 dark:text-gray-200">₹${p.amount}</p>
+                        <p class="text-[10px] text-gray-400 font-mono">UTR: ${p.utr || 'N/A'}</p>
+                        <p class="text-xs text-gray-400">${p.date}</p>
+                    </div>
+                    <div class="text-right">
+                        ${badge}
+                        ${actions}
+                    </div>
+                </div>
+            `;
+            el.appendChild(row);
+        });
+    }
+
+    // --- ACTIONS ---
+    
+    function addNewClient() {
+        const name = prompt("Client Name:");
+        if(name && currentUser) {
+            db.ref(`users/${currentUser.uid}/clientLedgers/clients/${name}`).set({
+                settings: { hourlyRate: 150 },
+                tasks: {}, payments: {}
+            });
+        }
+    }
+
+    function deleteClient() {
+        if(confirm("Delete this client?") && currentUser) {
+             db.ref(`users/${currentUser.uid}/clientLedgers/clients/${activeClient}`).remove();
+             activeClient = null;
+             // Force reload to clear UI
+             location.reload();
+        }
+    }
+
+    document.getElementById('client-selector').addEventListener('change', (e) => {
+        activeClient = e.target.value;
+        renderLedger(activeClient);
+    });
+
+    function addTask() {
+        if(!activeClient) return alert("Select a client");
+        const h = Number(document.getElementById('t-hr').value);
+        const m = Number(document.getElementById('t-min').value);
+        const s = Number(document.getElementById('t-sec').value);
+        
+        const task = {
+            hours: h, minutes: m, seconds: s,
+            decimalHours: h + (m/60) + (s/3600),
+            date: new Date().toISOString().split('T')[0],
+            timestamp: Date.now()
+        };
+        
+        // Also update hourly rate if changed
+        const rate = Number(document.getElementById('hourly-rate').value);
+        db.ref(`users/${currentUser.uid}/clientLedgers/clients/${activeClient}/settings/hourlyRate`).set(rate);
+        db.ref(`users/${currentUser.uid}/clientLedgers/clients/${activeClient}/tasks/${task.timestamp}`).set(task);
+        
+        // Clear inputs
+        document.getElementById('t-hr').value = '';
+        document.getElementById('t-min').value = '';
+        document.getElementById('t-sec').value = '';
+    }
+
+    // --- UPI & PAYMENT LOGIC ---
+
+    function openUPI() {
+        const amount = document.getElementById('pay-amount').value;
+        if(!amount) return alert("Enter amount first");
+        
+        // Deep Link
+        const upiLink = `upi://pay?pa=jarfanmade@ybl&pn=JarFanmade&am=${amount}&cu=INR`;
+        window.location.href = upiLink;
+    }
+
+    function submitPayment() {
+        if(!activeClient) return alert("System Error: No Client Selected");
+        const amount = Number(document.getElementById('pay-amount').value);
+        const utr = document.getElementById('pay-utr').value;
+        
+        if(!amount || !utr) return alert("Please enter Amount and UTR (Transaction ID)");
+
+        // Add as PENDING
+        const payment = {
+            amount: amount,
+            utr: utr,
+            date: new Date().toISOString().split('T')[0],
+            timestamp: Date.now(),
+            status: 'pending' // KEY CHANGE
+        };
+
+        if(currentUser) {
+            db.ref(`users/${currentUser.uid}/clientLedgers/clients/${activeClient}/payments/${payment.timestamp}`).set(payment);
+            alert("Payment Submitted for Verification! It will reflect after Admin approval.");
+            document.getElementById('pay-utr').value = '';
+            document.getElementById('pay-amount').value = '';
+        } else {
+            alert("Guest Mode: Cannot write to database directly. Please login.");
+        }
+    }
+
+    // --- VERIFICATION LOGIC ---
+    
+    // 1. Manual Verify (Clicking Approve button)
+    function verifyPayment(timestamp) {
+        if(confirm("Confirm that you received this payment in bank?")) {
+            db.ref(`users/${currentUser.uid}/clientLedgers/clients/${activeClient}/payments/${timestamp}/status`).set('verified');
+        }
+    }
+
+    // 2. AUTO-VERIFY Logic (Checking against JarBanker App pool)
+    function checkAutoVerification(payment, timestamp) {
+        // Sirf PENDING walo ko check karo
+        if(payment.status === 'pending' && payment.utr) {
+            const utr = payment.utr;
+            // 'verified_payments_pool' me check karo
+            db.ref(`verified_payments_pool/${utr}`).once('value').then(snap => {
+                if(snap.exists()) {
+                    // Match Found! Auto-Approve
+                    console.log("Auto-Verifying Payment:", utr);
+                    db.ref(`users/${currentUser.uid}/clientLedgers/clients/${activeClient}/payments/${timestamp}/status`).set('verified');
+                }
+            });
+        }
+    }
+
+    function deleteItem(type, timestamp) {
+        if(confirm("Delete this entry?")) {
+            db.ref(`users/${currentUser.uid}/clientLedgers/clients/${activeClient}/${type}/${timestamp}`).remove();
+        }
+    }
+
+    // UI Helpers
+    function updateUI() {
+        if(currentUser) {
+            document.getElementById('auth-section').querySelector('#login-btn').classList.add('hidden');
+            document.getElementById('user-info').classList.remove('hidden');
+            document.getElementById('user-email').innerText = currentUser.email;
+        } else {
+            document.getElementById('auth-section').querySelector('#login-btn').classList.remove('hidden');
+            document.getElementById('user-info').classList.add('hidden');
+        }
+    }
+    
+    function copyLink() {
+        const copyText = document.getElementById("share-link-input");
+        copyText.select();
+        navigator.clipboard.writeText(copyText.value);
+        alert("Link copied! Send this to your client.");
+    }
+
+</script>
+</body>
+</html>
