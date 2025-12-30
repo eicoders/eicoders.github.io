@@ -3,198 +3,239 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jar Fanmade | Portal Access</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <title>Jar Fanmade | Secure Redirect</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     
     <style>
         :root {
-            --glass-bg: rgba(255, 255, 255, 0.03);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --whatsapp-green: #25D366;
-            --accent-blue: #00d4ff;
+            --bg-black: #000000;
+            --glass-card: rgba(255, 255, 255, 0.04);
+            --border-line: rgba(255, 255, 255, 0.1);
+            --wa-green: #25D366;
+            --wa-hover: rgba(37, 211, 102, 0.12);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #000000;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-black);
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            color: #fff;
-            padding: 20px;
+            color: #ffffff;
+            padding: 24px;
             overflow: hidden;
         }
 
-        /* Responsive Glass Card */
-        .glass-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            border: 1px solid var(--glass-border);
-            border-radius: 35px;
-            padding: 40px 25px;
-            text-align: center;
+        /* Container Alignment */
+        .main-container {
             width: 100%;
-            max-width: 420px;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
-            animation: fadeIn 0.8s ease-out;
+            max-width: 410px;
+            text-align: center;
+            animation: appAppear 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        @keyframes appAppear {
+            from { opacity: 0; transform: scale(0.95) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
         }
 
-        .logo {
+        /* Logo Styling */
+        .logo-wrap {
+            margin-bottom: 30px;
+        }
+        .brand-logo {
             width: 80px;
             height: 80px;
-            margin-bottom: 20px;
-            filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.2));
-            transition: 0.5s;
+            filter: drop-shadow(0 0 20px rgba(255,255,255,0.15));
         }
-        
-        .logo:hover { transform: rotate(360deg); }
 
-        h1 { font-size: 1.6rem; font-weight: 700; margin-bottom: 10px; }
-        .desc { color: rgba(255, 255, 255, 0.6); font-size: 0.9rem; margin-bottom: 30px; line-height: 1.4; }
+        /* Text Alignment & Spacing */
+        h1 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+            line-height: 1.2;
+        }
 
-        /* Main Portal Button */
-        .portal-btn {
-            background: #fff;
-            color: #000;
-            padding: 16px;
+        .sub-text {
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 35px;
+            line-height: 1.6;
+            padding: 0 10px;
+        }
+
+        /* Primary Button Style */
+        .btn-primary {
+            background: #ffffff;
+            color: #000000;
+            padding: 18px;
             width: 100%;
-            border-radius: 15px;
+            border-radius: 18px;
             text-decoration: none;
             font-weight: 700;
+            font-size: 1.05rem;
             display: block;
             margin-bottom: 25px;
-            transition: 0.3s;
-            box-shadow: 0 10px 20px rgba(255,255,255,0.1);
+            transition: 0.3s all ease;
+            box-shadow: 0 8px 24px rgba(255, 255, 255, 0.1);
         }
 
-        .portal-btn:hover { background: #e0e0e0; transform: scale(1.02); }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(255, 255, 255, 0.2);
+        }
 
-        /* WhatsApp Join Section (Fully Clickable) */
-        .whatsapp-container {
-            background: rgba(37, 211, 102, 0.05);
-            border: 1px solid rgba(37, 211, 102, 0.2);
-            border-radius: 20px;
-            padding: 20px;
+        /* Premium WhatsApp Box */
+        .wa-card {
+            background: var(--glass-card);
+            border: 1px solid var(--border-line);
+            border-radius: 24px;
+            padding: 18px 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             text-decoration: none;
-            color: #fff;
-            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative;
-            overflow: hidden;
+            transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .whatsapp-container:hover {
-            background: rgba(37, 211, 102, 0.15);
-            border-color: var(--whatsapp-green);
+        .wa-card:hover {
+            background: var(--wa-hover);
+            border-color: var(--wa-green);
             transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(37, 211, 102, 0.2);
         }
 
-        .wa-content { display: flex; align-items: center; gap: 15px; text-align: left; }
-        
-        .wa-icon {
-            font-size: 32px;
-            color: var(--whatsapp-green);
-            filter: drop-shadow(0 0 8px rgba(37, 211, 102, 0.5));
+        .wa-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
         }
 
-        .wa-text b { display: block; font-size: 1rem; color: #fff; }
-        .wa-text span { font-size: 0.75rem; color: rgba(255, 255, 255, 0.5); }
+        .wa-icon-circle {
+            width: 48px;
+            height: 48px;
+            background: rgba(37, 211, 102, 0.1);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--wa-green);
+            font-size: 24px;
+        }
 
-        .join-now-badge {
-            background: var(--whatsapp-green);
-            color: #000;
-            padding: 8px 15px;
-            border-radius: 10px;
+        .wa-info {
+            text-align: left;
+        }
+
+        .wa-info b {
+            display: block;
+            font-size: 1rem;
+            color: #fff;
+            margin-bottom: 2px;
+        }
+
+        .wa-info span {
             font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .join-btn {
+            background: var(--wa-green);
+            color: #000;
+            padding: 10px 18px;
+            border-radius: 12px;
+            font-size: 0.85rem;
             font-weight: 800;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        /* Progress Bar */
-        .progress-area { margin-top: 35px; width: 100%; }
-        
-        .progress-bg {
-            height: 3px;
-            background: rgba(255, 255, 255, 0.1);
+        /* Loading System */
+        .loading-section {
+            margin-top: 50px;
+        }
+
+        .progress-track {
             width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.05);
             border-radius: 10px;
             overflow: hidden;
+            margin-bottom: 12px;
         }
 
-        .progress-fill {
+        .progress-bar {
             height: 100%;
-            background: linear-gradient(to right, #fff, var(--accent-blue));
+            background: linear-gradient(90deg, #ffffff, #00d4ff);
             width: 0%;
-            animation: load 10s linear forwards;
+            animation: progressFill 10s linear forwards;
         }
 
-        @keyframes load { to { width: 100%; } }
+        @keyframes progressFill { to { width: 100%; } }
 
-        .timer-text {
-            margin-top: 15px;
-            font-size: 0.7rem;
-            color: rgba(255, 255, 255, 0.4);
-            letter-spacing: 2px;
+        .timer-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.3);
+            letter-spacing: 1.5px;
             text-transform: uppercase;
         }
 
-        #timer { color: #fff; font-weight: bold; }
+        #time-counter {
+            color: #fff;
+        }
 
     </style>
 </head>
 <body>
 
-    <div class="glass-card">
-        <img src="logo.png" alt="Jar Co." class="logo">
+    <div class="main-container">
+        <div class="logo-wrap">
+            <img src="logo.png" alt="Jar Co." class="brand-logo">
+        </div>
         
         <h1>RRC Alwar Student Portal</h1>
-        <p class="desc">Jar Fanmade official student portal par bheja ja raha hai.</p>
+        <p class="sub-text">Jar Fanmade portal aapko official student portal par bhej raha hai.</p>
         
-        <a href="https://rrcalwar.onlineexamforms.com/student.aspx" class="portal-btn">PORTAL OPEN KAREIN</a>
+        <a href="https://rrcalwar.onlineexamforms.com/student.aspx" class="btn-primary"> OPEN PORTAL</a>
 
-        <a href="https://whatsapp.com/channel/0029Vb5gZjY6GcGG7Tllv218" class="whatsapp-container" target="_blank">
-            <div class="wa-content">
-                <i class="fab fa-whatsapp wa-icon"></i>
-                <div class="wa-text">
-                    <b>Jar Corporation Channel</b>
+        <a href="https://whatsapp.com/channel/0029Vb5gZjY6GcGG7Tllv218" class="wa-card" target="_blank">
+            <div class="wa-left">
+                <div class="wa-icon-circle">
+                    <i class="fab fa-whatsapp"></i>
+                </div>
+                <div class="wa-info">
+                    <b>Jar Corporation</b>
                     <span>Stay Updated on WhatsApp</span>
                 </div>
             </div>
-            <div class="join-now-badge">Join Now</div>
+            <div class="join-btn">Join Now</div>
         </a>
 
-        <div class="progress-area">
-            <div class="progress-bg">
-                <div class="progress-fill"></div>
+        <div class="loading-section">
+            <div class="progress-track">
+                <div class="progress-bar"></div>
             </div>
-            <p class="timer-text">Redirecting in <span id="timer">10</span>s</p>
+            <p class="timer-label">Redirecting in <span id="time-counter">10</span>s</p>
         </div>
     </div>
 
     <script>
-        let count = 10;
-        const timerElement = document.getElementById('timer');
-        const targetURL = "https://rrcalwar.onlineexamforms.com/student.aspx";
+        let seconds = 10;
+        const display = document.getElementById('time-counter');
+        const link = "https://rrcalwar.onlineexamforms.com/student.aspx";
 
         const countdown = setInterval(() => {
-            count--;
-            timerElement.innerText = count;
-            if (count <= 0) {
+            seconds--;
+            display.innerText = seconds;
+            if (seconds <= 0) {
                 clearInterval(countdown);
-                window.location.href = targetURL;
+                window.location.href = link;
             }
         }, 1000);
     </script>
