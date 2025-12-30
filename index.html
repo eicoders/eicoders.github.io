@@ -3,23 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JarFanmade | Portal Access</title>
+    <title>Jar Co. | Portal Access</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
-        /* CSS Variables for easy control */
         :root {
             --glass-bg: rgba(255, 255, 255, 0.03);
             --glass-border: rgba(255, 255, 255, 0.12);
             --text-main: #ffffff;
             --text-dim: rgba(255, 255, 255, 0.6);
-            --accent: #ffffff; /* Keeping it clean white */
+            --whatsapp-color: #25D366;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #000000; /* Deep Black Background - No Gradient */
+            background-color: #000000; /* Pure Black */
             height: 100vh;
             display: flex;
             justify-content: center;
@@ -29,7 +28,7 @@
             padding: 20px;
         }
 
-        /* Fully Responsive Glass Card */
+        /* Responsive Glass Card */
         .glass-card {
             background: var(--glass-bg);
             backdrop-filter: blur(30px);
@@ -39,61 +38,74 @@
             padding: 40px 30px;
             text-align: center;
             width: 100%;
-            max-width: 400px; /* Fixed max width for desktop */
+            max-width: 400px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-            position: relative;
         }
 
-        /* Logo with Glow Effect */
         .logo {
-            width: 85px;
-            height: 85px;
-            margin-bottom: 25px;
-            object-fit: contain;
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
             filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.2));
         }
 
         h1 {
-            font-size: clamp(1.5rem, 5vw, 1.8rem); /* Responsive font size */
+            font-size: clamp(1.4rem, 5vw, 1.7rem);
             font-weight: 700;
-            margin-bottom: 12px;
-            letter-spacing: -0.5px;
+            margin-bottom: 10px;
         }
 
         p {
             color: var(--text-dim);
             font-weight: 300;
-            margin-bottom: 35px;
-            font-size: 0.95rem;
+            margin-bottom: 30px;
+            font-size: 0.9rem;
             line-height: 1.5;
         }
 
-        /* Minimalist Button */
+        /* Portal Button */
         .action-btn {
             background: #ffffff;
             color: #000000;
-            padding: 16px 0;
-            width: 100%; /* Full width on mobile */
+            padding: 15px 0;
+            width: 100%;
             border-radius: 12px;
             text-decoration: none;
             font-weight: 600;
-            font-size: 1rem;
-            transition: all 0.3s ease;
             display: block;
-            border: 1px solid #ffffff;
+            margin-bottom: 15px;
+            transition: 0.3s;
         }
 
         .action-btn:hover {
-            background: transparent;
-            color: #ffffff;
             transform: translateY(-2px);
+            opacity: 0.9;
         }
 
-        /* Loading Bar Container */
+        /* WhatsApp Link */
+        .whatsapp-link {
+            color: var(--whatsapp-color);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 10px;
+            transition: 0.3s;
+        }
+
+        .whatsapp-link:hover {
+            opacity: 0.8;
+            text-decoration: underline;
+        }
+
+        /* Progress Bar */
         .loader-wrap {
-            margin-top: 40px;
+            margin-top: 30px;
             width: 100%;
-            height: 1px; /* Super thin minimalist line */
+            height: 2px;
             background: rgba(255, 255, 255, 0.1);
         }
 
@@ -101,7 +113,7 @@
             height: 100%;
             background: #ffffff;
             width: 0%;
-            animation: load 5s linear forwards;
+            animation: load 10s linear forwards;
         }
 
         @keyframes load { to { width: 100%; } }
@@ -114,31 +126,31 @@
             letter-spacing: 2px;
         }
 
-        /* Responsive Adjustments for very small screens */
-        @media (max-width: 350px) {
-            .glass-card { padding: 30px 20px; }
-            h1 { font-size: 1.3rem; }
-        }
+        #timer { color: #ffffff; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div class="glass-card">
-        <img src="logo.png" alt="JarFanmade Logo" class="logo">
+        <img src="logo.png" alt="Jar Co. Logo" class="logo">
         
-        <h1>RRC Alwar</h1>
-        <p>Aapko JarFanmade portal se student portal par redirect kiya ja raha hai.</p>
+        <h1>RRC Alwar Portal</h1>
+        <p>Jar Co. aapko official student portal par securely redirect kar raha hai.</p>
         
         <a href="https://rrcalwar.onlineexamforms.com/student.aspx" class="action-btn">PORTAL OPEN KAREIN</a>
+
+        <a href="https://whatsapp.com/channel/0029Vb5gZjY6GcGG7Tllv218" class="whatsapp-link" target="_blank">
+            Follow Jar Co. on WhatsApp →
+        </a>
 
         <div class="loader-wrap">
             <div class="loader-fill"></div>
         </div>
-        <p class="footer-text">Auto-Redirect in <span id="timer">5</span>s</p>
+        <p class="footer-text">Redirecting in <span id="timer">10</span>s</p>
     </div>
 
     <script>
-        let timeLeft = 5;
+        let timeLeft = 10;
         const timerSpan = document.getElementById('timer');
         const target = "https://rrcalwar.onlineexamforms.com/student.aspx";
 
