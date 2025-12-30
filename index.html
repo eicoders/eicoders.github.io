@@ -1,20 +1,129 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>RRC Alwar Student Portal - JarFanmade</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redirecting to RRC Alwar Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        body { font-family: sans-serif; text-align: center; padding-top: 50px; background-color: #f4f4f4; }
-        .card { background: white; padding: 30px; border-radius: 10px; display: inline-block; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        .btn { background: #d32f2f; color: white; padding: 15px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; }
+        :root {
+            --primary-color: #ffffff;
+            --accent-color: #00d4ff;
+            --bg-dark: #0f172a;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: radial-gradient(circle at top right, #1e293b, #0f172a);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            overflow: hidden;
+        }
+
+        /* Glassmorphism Card */
+        .container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 50px 40px;
+            border-radius: 24px;
+            text-align: center;
+            max-width: 450px;
+            width: 90%;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: fadeIn 1s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Logo Styling */
+        .logo {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 25px;
+            filter: drop-shadow(0 0 10px rgba(0, 212, 255, 0.5));
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        h1 { font-weight: 600; font-size: 1.5rem; margin-bottom: 10px; }
+        p { font-weight: 300; color: #94a3b8; margin-bottom: 30px; line-height: 1.6; }
+
+        /* Super Attractive Button */
+        .btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #00d4ff 0%, #0072ff 100%);
+            color: white;
+            padding: 16px 32px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px -5px rgba(0, 114, 255, 0.4);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 25px -5px rgba(0, 114, 255, 0.6);
+            filter: brightness(1.1);
+        }
+
+        /* Redirect Text */
+        .timer {
+            margin-top: 25px;
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        #seconds { color: var(--accent-color); font-weight: bold; }
+
     </style>
 </head>
 <body>
-    <div class="card">
-        <img src="https://rrcalwar.onlineexamforms.com/images/logo.png" width="100"><br>
-        <h2>Raj Rishi College, Alwar</h2>
-        <p>Student Exam Portal (Session 2025-2026)</p><br><br>
-        <a href="https://rrcalwar.onlineexamforms.com/student.aspx" class="btn">GO TO STUDENT PORTAL</a>
+
+    <div class="container">
+        <img src="logo.png" alt="JarFanmade Logo" class="logo">
+        
+        <h1>Welcome to RRC Alwar</h1>
+        <p>Aapko Raj Rishi College ke Student Portal par redirect kiya ja raha hai...</p>
+        
+        <a href="https://rrcalwar.onlineexamforms.com/student.aspx" class="btn">PORTAL OPEN KAREIN</a>
+
+        <div class="timer">
+            Auto-redirecting in <span id="seconds">5</span> seconds...
+        </div>
     </div>
+
+    <script>
+        // Timer Logic
+        let count = 5;
+        const timerElement = document.getElementById('seconds');
+        const targetURL = "https://rrcalwar.onlineexamforms.com/student.aspx";
+
+        const countdown = setInterval(() => {
+            count--;
+            timerElement.innerText = count;
+            if (count <= 0) {
+                clearInterval(countdown);
+                window.location.href = targetURL;
+            }
+        }, 1000);
+    </script>
+
 </body>
 </html>
 
