@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Jar Fanmade - 2026 Surprise</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Montserrat:wght@400;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --gold: #ffd700;
+            --bright-gold: #fff0a0;
+            --bg: #050505;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg);
+            font-family: 'Montserrat', sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%);
+        }
+
+        /* --- BACKGROUND WATERMARK (APKA LOGO) --- */
+        .bg-logo {
+            position: absolute;
+            width: 130vw;
+            max-width: 800px;
+            opacity: 0.06;
+            z-index: 0;
+            animation: rotateLogo 120s linear infinite;
+        }
+        @keyframes rotateLogo { from {transform: rotate(0deg);} to {transform: rotate(360deg);} }
+
+        /* --- MYSTERY BOX SECTION --- */
+        #mystery-section {
+            z-index: 100;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .gift-box {
+            width: 140px;
+            height: 140px;
+            background: linear-gradient(45deg, #d40000, #ff3333);
+            margin: 0 auto 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 40px rgba(255,0,0,0.4);
+            animation: bounce 1s infinite alternate;
+            position: relative;
+        }
+        .gift-box::after {
+            content: ''; position: absolute; width: 25px; height: 100%;
+            background: var(--gold); left: 50%; transform: translateX(-50%);
+        }
+
+        @keyframes bounce { from {transform: translateY(0) scale(1);} to {transform: translateY(-20px) scale(1.05);} }
+
+        /* --- MAIN CONTENT (FIXED VISIBILITY) --- */
+        #wish-content {
+            display: none;
+            z-index: 10;
+            text-align: center;
+            width: 92%;
+            max-width: 450px;
+            padding: 40px 25px;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,215,0,0.2);
+            border-radius: 40px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            animation: openUp 0.6s ease-out;
+        }
+
+        @keyframes openUp { from {opacity: 0; transform: scale(0.8);} to {opacity: 1; transform: scale(1);} }
+
+        .brand-logo { width: 70px; margin-bottom: 10px; filter: drop-shadow(0 0 10px var(--gold)); }
+
+        .brand-header {
+            font-family: 'Syncopate', sans-serif;
+            font-size: 0.7rem;
+            letter-spacing: 4px;
+            color: var(--gold);
+            margin-bottom: 15px;
+        }
+
+        .sender-tag { color: #fff; font-size: 1.1rem; opacity: 0.9; }
+
+        .name-highlight { 
+            font-size: 2.8rem; font-weight: 900; color: #fff;
+            text-shadow: 0 0 15px rgba(255,255,255,0.4);
+            margin-bottom: 5px;
+        }
+
+        /* --- FIXED VISIBILITY TEXT --- */
+        .happy-new-year {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--bright-gold); /* Bright color for visibility */
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin: 15px 0 5px;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.8); /* Glow effect */
+        }
+
+        .year-2026 {
+            font-size: 6.5rem;
+            font-weight: 900;
+            background: linear-gradient(to bottom, #fff, var(--gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 0.9;
+            filter: drop-shadow(0 0 10px rgba(255,215,0,0.3));
+        }
+
+        /* --- INTERACTIVE INPUTS --- */
+        .share-section { margin-top: 35px; }
+        input {
+            width: 100%; padding: 15px; border-radius: 50px; border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(0,0,0,0.5); color: #fff; text-align: center; font-size: 1rem; margin-bottom: 15px;
+            outline: none;
+        }
+        input:focus { border-color: var(--gold); }
+
+        .btn-whatsapp {
+            width: 100%; padding: 16px; border-radius: 50px; border: none;
+            background: linear-gradient(45deg, #25d366, #128c7e);
+            color: white; font-weight: 900; font-size: 1.1rem; cursor: pointer;
+            box-shadow: 0 10px 25px rgba(37, 211, 102, 0.4);
+            transition: 0.3s;
+        }
+        .btn-whatsapp:active { transform: scale(0.95); }
+
+        .tap-hint { color: var(--gold); margin-top: 15px; font-weight: bold; animation: pulse 1s infinite; }
+        @keyframes pulse { 50% {opacity: 0.4;} }
+    </style>
+</head>
+<body>
+
+    <img src="1000034213.png" class="bg-logo" alt="Jar Fanmade">
+
+    <div id="mystery-section" onclick="revealSurprise()">
+        <div class="gift-box"></div>
+        <h2 style="color:white; font-weight:300;">A Surprise for You!</h2>
+        <p class="tap-hint">TAP TO OPEN GIFT</p>
+    </div>
+
+    <div id="wish-content">
+        <img src="logo.png" class="brand-logo" alt="Logo">
+        <div class="brand-header">JAR FANMADE PRESENTS</div>
+        
+        <p class="sender-tag">Special Wish from</p>
+        <h1 class="name-highlight" id="displayName">Suresh</h1>
+        
+        <p class="happy-new-year">HAPPY NEW YEAR</p>
+        <div class="year-2026">2026</div>
+
+        <div class="share-section">
+            <input type="text" id="nameInput" placeholder="Apna naam likhein..." autocomplete="off">
+            <button class="btn-whatsapp" onclick="shareOnWA()">SHARE ON WHATSAPP</button>
+        </div>
+        
+        <p style="margin-top:20px; font-size:0.7rem; color:rgba(255,255,255,0.4);">
+            Developed by <b>Jar Fanmade(Suresh)</b>
+        </p>
+    </div>
+
+    <script>
+        // Name from URL
+        const params = new URLSearchParams(window.location.search);
+        const uName = params.get('n') || "Jar Fanmade Team";
+        document.getElementById('displayName').innerText = decodeURIComponent(uName);
+
+        function revealSurprise() {
+            if (navigator.vibrate) navigator.vibrate(200);
+            
+            document.getElementById('mystery-section').style.display = 'none';
+            document.getElementById('wish-content').style.display = 'block';
+
+            // Premium Fireworks
+            var end = Date.now() + (3 * 1000);
+            var colors = ['#ffd700', '#ffffff', '#ff0000'];
+
+            (function frame() {
+              confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0 }, colors: colors });
+              confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1 }, colors: colors });
+              if (Date.now() < end) { requestAnimationFrame(frame); }
+            }());
+        }
+
+        function shareOnWA() {
+            const name = document.getElementById('nameInput').value.trim();
+            if(!name) { alert("Pehle apna naam toh likho!"); return; }
+            
+            const link = window.location.origin + window.location.pathname + "?n=" + encodeURIComponent(name);
+            const text = `🎁 *${name}* ne aapke liye ek *SECRET SURPRISE* bheja hai! 🤫✨\n\nIse kholne ke liye niche blue line par touch karein:\n👇👇👇\n${link}\n\n*Happy New Year 2026!* 🎇`;
+            
+            window.location.href = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+        }
+    </script>
+</body>
+</html>
