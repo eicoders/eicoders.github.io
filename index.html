@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Jar Fanmade - Luxury 2026 Surprise</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --gold-gradient: linear-gradient(45deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+            --red-velvet: linear-gradient(145deg, #d40000, #800000);
+            --bg-black: #050505;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-black);
+            font-family: 'Montserrat', sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+
+        /* --- 3D PREMIUM GIFT BOX --- */
+        #mystery-section {
+            z-index: 100;
+            text-align: center;
+            perspective: 1000px;
+        }
+
+        .box-container {
+            width: 150px;
+            height: 150px;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: float 3s infinite ease-in-out;
+            cursor: pointer;
+            margin: 0 auto 30px;
+        }
+
+        /* Box Body */
+        .box-body {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: var(--red-velvet);
+            border: 1px solid rgba(255,215,0,0.3);
+            border-radius: 8px;
+            box-shadow: 0 0 40px rgba(255, 0, 0, 0.3);
+        }
+
+        /* 3D Lid (Dhakan) */
+        .box-lid {
+            position: absolute;
+            width: 110%;
+            height: 40px;
+            background: var(--red-velvet);
+            top: -10px;
+            left: -5%;
+            z-index: 2;
+            border-radius: 5px;
+            border-bottom: 3px solid var(--gold-gradient);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            transition: 0.5s;
+        }
+
+        /* Luxury Ribbon */
+        .ribbon-vertical {
+            position: absolute;
+            width: 30px;
+            height: 100%;
+            background: var(--gold-gradient);
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1;
+        }
+
+        .ribbon-horizontal {
+            position: absolute;
+            width: 100%;
+            height: 30px;
+            background: var(--gold-gradient);
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 1;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: rotateY(0deg) translateY(0); }
+            50% { transform: rotateY(15deg) translateY(-20px); }
+        }
+
+        /* --- MAIN CARD (HIDDEN) --- */
+        #main-card {
+            display: none;
+            position: relative;
+            z-index: 10;
+            width: 90%;
+            max-width: 450px;
+            padding: 40px 25px;
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            border-radius: 40px;
+            text-align: center;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+        }
+
+        .brand-logo { width: 70px; margin-bottom: 10px; filter: drop-shadow(0 0 10px #ffd700); }
+        .brand-header { font-family: 'Syncopate', sans-serif; font-size: 0.7rem; letter-spacing: 5px; color: #ffd700; margin-bottom: 20px; }
+        
+        .name-highlight { 
+            font-size: clamp(2.2rem, 9vw, 3rem); 
+            font-weight: 900; 
+            background: linear-gradient(to bottom, #fff, #aaa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 10px 0;
+        }
+
+        /* --- SUPER VISIBLE TEXT --- */
+        .hny-banner {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #fff5ba;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin: 20px 0 5px;
+            text-shadow: 0 0 15px #ffd700, 0 0 30px rgba(255, 215, 0, 0.5);
+        }
+
+        .year-2026 {
+            font-size: clamp(5.5rem, 22vw, 7.5rem);
+            font-weight: 900;
+            background: var(--gold-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 0.9;
+        }
+
+        /* --- UI ELEMENTS --- */
+        input {
+            width: 100%; padding: 15px; border-radius: 50px; border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(0,0,0,0.6); color: #fff; text-align: center; margin: 30px 0 15px; outline: none;
+        }
+        .btn-share {
+            width: 100%; padding: 16px; border-radius: 50px; border: none;
+            background: linear-gradient(45deg, #25d366, #128c7e);
+            color: white; font-weight: 900; cursor: pointer;
+            box-shadow: 0 10px 20px rgba(37, 211, 102, 0.4);
+        }
+
+        .tap-text { color: #ffd700; font-weight: bold; letter-spacing: 2px; animation: glow 1s infinite alternate; }
+        @keyframes glow { from { opacity: 0.4; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <div id="mystery-section" onclick="openLuxuryBox()">
+        <div class="box-container" id="gift-box">
+            <div class="box-lid" id="box-lid">
+                <div class="ribbon-vertical"></div>
+                <div class="ribbon-horizontal"></div>
+            </div>
+            <div class="box-body">
+                <div class="ribbon-vertical"></div>
+            </div>
+        </div>
+        <h2 style="font-weight:300;">You have a Luxury Gift!</h2>
+        <p class="tap-text">CLICK TO UNWRAP</p>
+    </div>
+
+    <div id="main-card">
+        <img src="logo.png" class="brand-logo" alt="Jar Fanmade">
+        <div class="brand-header">JAR FANMADE PRESENTS</div>
+        
+        <p style="opacity: 0.8;">Special New Year Wish from</p>
+        <h1 class="name-highlight" id="displayName">Suresh</h1>
+        
+        <p class="hny-banner">HAPPY NEW YEAR</p>
+        <div class="year-2026">2026</div>
+
+        <div class="share-box">
+            <input type="text" id="nameInput" placeholder="Apna naam likhein..." autocomplete="off">
+            <button class="btn-share" onclick="shareSurprise()">SEND TO FRIENDS</button>
+        </div>
+        
+        <p style="margin-top:25px; font-size:0.7rem; color:rgba(255,215,0,0.5); letter-spacing: 2px;">
+            PREMIUM EXPERIENCE BY JAR FANMADE
+        </p>
+    </div>
+
+    <script>
+        // Name Handling
+        const urlParams = new URLSearchParams(window.location.search);
+        const nameParam = urlParams.get('n') || "Jar Fanmade Team";
+        document.getElementById('displayName').innerText = decodeURIComponent(nameParam);
+
+        function openLuxuryBox() {
+            if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+
+            // Lid Opening Animation
+            gsap.to("#box-lid", { duration: 0.7, y: -100, rotation: 15, opacity: 0, ease: "power2.out" });
+            gsap.to("#gift-box", { duration: 0.5, scale: 1.2, opacity: 0, delay: 0.2, ease: "back.in(1.7)" });
+
+            setTimeout(() => {
+                document.getElementById('mystery-section').style.display = 'none';
+                const card = document.getElementById('main-card');
+                card.style.display = 'block';
+                
+                // Card Reveal
+                gsap.fromTo("#main-card", 
+                    { opacity: 0, scale: 0.8, y: 50 }, 
+                    { opacity: 1, scale: 1, y: 0, duration: 1, ease: "expo.out" }
+                );
+
+                // Fireworks
+                triggerPremiumCelebration();
+            }, 700);
+        }
+
+        function triggerPremiumCelebration() {
+            var duration = 5 * 1000;
+            var animationEnd = Date.now() + duration;
+            var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+            function randomInRange(min, max) { return Math.random() * (max - min) + min; }
+
+            var interval = setInterval(function() {
+                var timeLeft = animationEnd - Date.now();
+                if (timeLeft <= 0) return clearInterval(interval);
+                var particleCount = 50 * (timeLeft / duration);
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+            }, 250);
+        }
+
+        function shareSurprise() {
+            const userName = document.getElementById('nameInput').value.trim();
+            if(!userName) { alert("Pehle naam likho bhai!"); return; }
+            
+            const shareUrl = window.location.origin + window.location.pathname + "?n=" + encodeURIComponent(userName);
+            const waMsg = `✨👑 *${userName}* has sent you a *PREMIUM 2026 SURPRISE!* 👑✨\n\nClick below to open your luxury gift:\n👇👇👇\n${shareUrl}\n\n*Happy New Year 2026!* 🎆`;
+            
+            window.location.href = `https://api.whatsapp.com/send?text=${encodeURIComponent(waMsg)}`;
+        }
+    </script>
+</body>
+</html>
