@@ -102,7 +102,7 @@
     </div>
 
     <div id="wish-card">
-        <img src="logo.png" class="clean-logo" alt="Logo">
+        <img src="my_logo.png" class="clean-logo" alt="Logo">
         <div class="brand-text">WELCOME FRIENDS 🤗</div>
         <p style="opacity: 0.7;">Special Wish from</p>
         <h1 class="name-display" id="dispName">Suresh</h1>
